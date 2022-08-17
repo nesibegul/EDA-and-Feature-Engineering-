@@ -1,0 +1,29 @@
+insert into ref_barkod_magaza 
+(
+   yil, 
+   ay, 
+   isyeri_sira, 
+   vergino, 
+   magaza_kodu, 
+   kurum_key, 
+   yerel_birim_no, 
+   isyeri_sgk_sicil_no, 
+   bolge_kodu, 
+   il_kodu, 
+   aktif
+) 
+select
+    yil, 
+    12 as ay, 
+    isyeri_sira, 
+    vergino, 
+    magaza_kodu, 
+    kurum_key, 
+    yerel_birim_no, 
+    isyeri_sgk_sicil_no, 
+    bolge_kodu, 
+    il_kodu, 
+    aktif
+from ref_barkod_magaza
+    where yil = 2021
+          and ay = 11; 

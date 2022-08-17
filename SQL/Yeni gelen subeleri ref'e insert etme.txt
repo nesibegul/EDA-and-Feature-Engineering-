@@ -1,0 +1,87 @@
+insert into barkod_01_market_01.ref_barkod_magaza (
+   yil, 
+   ay, 
+   isyeri_sira, 
+   vergino, 
+   magaza_kodu, 
+   --YEREL_BIRIM_NO, 
+   --ISYERI_SGK_SICIL_NO, 
+   --bolge_kodu, 
+   il_kodu,
+   aktif)
+
+select 
+    yil,
+    12 as ay,
+    sira,
+    vergino,
+    sube,
+    --isyeri,
+    --kurum_key,
+   -- bolge_kodu,
+    il_kodu,
+    1 as aktif
+from(
+    select 
+        s1.vergýno,
+        s3.isyeri,  
+        s1.sube,
+        s1.yil,
+        --s2.ay,
+        s3.sira,
+        s2.kurum_key,
+        s2.bolge_kodu,
+        s4.il_kodu
+     
+    from(       
+        select  yil,  vergino, sube from C_005_SUBE_PAR
+            where yil = 2021
+                   and ay = 12
+                   and vergino = (select vergino from ref_barkod_isyeri where sira = 9)
+                minus
+        select yil ,vergino, sube from C_005_SUBE_PAR
+            where yil = 2021
+                  and ay = 11
+                  and vergino = (select vergino from ref_barkod_isyeri where sira =9)
+        ) s1
+
+    left join
+        (
+
+        select
+            isyeri_sira,
+            yil,
+            ay,
+            vergino,
+            magaza_kodu as sube,
+            kurum_key,
+            bolge_kodu,
+            il_kodu 
+        from ref_barkod_magaza
+            where yil = 2021
+                  and ay = 12
+                  and vergino = (select vergino from ref_barkod_isyeri where sira = 9)
+        )s2
+        on s1.vergino = s2.vergino 
+           and s1.sube = s2.sube
+      
+    left join
+        (select sira, vergino, isyeri_tanim as isyeri from ref_barkod_isyeri) s3  
+          
+        on s1.vergino = s3.vergino
+        
+        
+        left join 
+    
+    
+    ( select distinct depokodu, ilkodu as il_kodu from B_009_ONUR_A_PAR
+        where yil = 2021
+              and ay = 12
+    ) s4
+    on s1.sube = s4.depokodu
+     where s2.il_kodu is null 
+        
+    )
+ 
+   
+     

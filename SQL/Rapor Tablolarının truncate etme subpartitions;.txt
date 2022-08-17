@@ -1,0 +1,15 @@
+alter table RAPOR_001_BARKOD_SAYI_PAR truncate subpartition yil2021_ay10;
+alter table RAPOR_002_BARKOD_KOD_PAR truncate subpartition yil2021_ay10;
+alter table RAPOR_003_BARKOD_FIYAT_PAR truncate subpartition yil2021_ay10;
+alter table RAPOR_004_BARKOD_DEGISIM_PAR truncate subpartition yil2021_ay10;
+alter table RAPOR_005_BARKOD_DEGISIM_PAR truncate subpartition yil2021_ay10;
+alter table RAPOR_051_BARKOD_YENI_PAR truncate subpartition yil2021_ay10;
+alter table RAPOR_101_URUN_YENI_PAR truncate subpartition yil2021_ay10;
+alter table RAPOR_151_BARKOD_URUN_PAR truncate subpartition yil2021_ay10;
+alter table RAPOR_201_SATIS_PAR truncate subpartition yil2021_ay10;
+alter table RAPOR_202_SATIS_PAR truncate subpartition yil2021_ay10;
+alter table RAPOR_203_SATIS_PAR truncate subpartition yil2021_ay10;
+alter table RAPOR_204_SATIS_PAR truncate subpartition yil2021_ay10;
+alter table RAPOR_205_SATIS_PAR truncate subpartition yil2021_ay10;
+alter table RAPOR_206_SATIS_PAR truncate subpartition yil2021_ay10;
+alter table RAPOR_251_BARKOD_FIYAT_PAR truncate subpartition yil2021_ay10;

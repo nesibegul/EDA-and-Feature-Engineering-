@@ -1,0 +1,128 @@
+ select row_number ()
+            over (partition by s1.yil, s1.ay, s1.vergino order by s1.madde_kod)
+            rn,
+         s1.yil,
+         s1.ay,
+         s1.vergino,
+         s1.madde_kod,
+         s3.aciklama,
+         s1.sira_1_max_fiyat,
+         s1.sira_2_max_fiyat,
+         s1.sira_3_max_fiyat,
+         s1.sira_4_max_fiyat,
+         s1.sira_5_max_fiyat,
+         s1.sira_1_tanim_1,
+         s1.sira_2_tanim_1,
+         s1.sira_3_tanim_1,
+         s1.sira_4_tanim_1,
+         s1.sira_5_tanim_1,
+         '<=====>',
+         s2.sira_1_min_fiyat,
+         s2.sira_2_min_fiyat,
+         s2.sira_3_min_fiyat,
+         s2.sira_4_min_fiyat,
+         s2.sira_5_min_fiyat,
+         s2.sira_1_tanim_1,
+         s2.sira_2_tanim_1,
+         s2.sira_3_tanim_1,
+         s2.sira_4_tanim_1,
+         s2.sira_5_tanim_1
+    from 
+    (select *
+            from (select yil,
+                         ay,
+                         vergino,
+                         madde_kod,
+                         tanim,
+                         rn1,
+                         -- rn2,
+                         ortalama_birim_satis
+                    from (select distinct
+                                 yil,
+                                 ay,
+                                 vergino,
+                                 madde_kod,
+                                 tanim,
+                                 row_number ()
+                                 over ( partition by madde_kod order by ortalama_birim_satis desc nulls last) as rn1,
+                           
+                                    
+                                 -- row_number() over(partition by madde_kod order by ortalama_birim_satis desc nulls last) as rn2,
+                                 ortalama_birim_satis
+                            from (select yil,
+                                         ay,
+                                         vergino,
+                                         bolge_kodu,
+                                         il_kodu,
+                                         sube,
+                                         madde_kod,
+                                         tanim,
+                                         --marka,
+                                         satis_birim_fiyat,
+                                         round ( avg (    satis_birim_fiyat) over ( partition by yil,ay, vergino, bolge_kodu, il_kodu, sube, madde_kod),2) ortalama_birim_satis
+           
+                           from e_006_barkod_urun_miktar_par
+                                   where     yil = 2021
+                                         and ay = 3
+                                         and vergino = '9480072586'))
+                   where rn1 < 6                                   -- or rn2<6
+                                ) pivot (max (ortalama_birim_satis) max_fiyat,
+                                        max (tanim) tanim_1
+                                  for rn1
+                                  in  ('1' sira_1,
+                                      '2' sira_2,
+                                      '3' sira_3,
+                                      '4' sira_4,
+                                      '5' sira_5))) s1
+         left join (select *
+                      from (select yil,
+                                   ay,
+                                   vergino,
+                                   madde_kod,
+                                   tanim,
+                                   --  rn1,
+                                   rn2,
+                                   ortalama_birim_satis
+                              from (select distinct
+                                           yil,
+                                           ay,
+                                           vergino,
+                                           madde_kod,
+                                           tanim,
+                                           --  row_number() over(partition by madde_kod order by ortalama_birim_satis asc nulls last) as rn1,
+                                           row_number ()  over ( partition by madde_kod  order by  ortalama_birim_satis asc nulls last) as rn2,
+                                           ortalama_birim_satis
+                                      from (select yil,
+                                                   ay,
+                                                   vergino,
+                                                   bolge_kodu,
+                                                   il_kodu,
+                                                   sube,
+                                                   madde_kod,
+                                                   tanim,
+                                                   --marka,
+                                                   satis_birim_fiyat,
+                                                   round ( avg ( satis_birim_fiyat) over ( partition by yil,ay, vergino, bolge_kodu, il_kodu, sube, madde_kod),2) ortalama_birim_satis
+                                              from e_006_barkod_urun_miktar_par
+                                             where     yil = 2021
+                                                   and ay = 3
+                                                   and vergino = '9480072586'))
+                             where rn2 < 6                         -- or rn2<6
+                                          ) pivot (max (ortalama_birim_satis) min_fiyat,
+                                                  max (tanim) tanim_1
+                                            for rn2
+                                            in  ('1' sira_1,
+                                                '2' sira_2,
+                                                '3' sira_3,
+                                                '4' sira_4,
+                                                '5' sira_5))) s2
+            on     s1.yil = s2.yil
+               and s1.ay = s2.ay
+               and s1.vergino = s2.vergino
+               and s1.madde_kod = s2.madde_kod
+               
+         left join (select kod, aciklama, seviye
+                      from ref_barkod_coicop
+                     where seviye = 11) s3
+            on s1.madde_kod = s3.kod
+order by 4

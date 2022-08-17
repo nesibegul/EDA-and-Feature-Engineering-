@@ -1,0 +1,86 @@
+select distinct yil,
+                vergino,
+                isyeri,
+                sube,
+                kurum_key,
+                il_kodu,
+                bolge_kodu,
+                ay1,
+                ay2,
+                ay3,
+                ay4,
+                ay5,
+                ay6,
+                ay7,
+                ay8
+from (
+        select 
+                s1.yil,
+                s1.vergino,
+                s1.isyerÝ,
+                s1.sube,
+                s2.kurum_key,
+                s1.il_kodu,
+                s1.bolge_kodu,
+                s1.ay1,
+                s1.ay2,
+                s1.ay3,
+                s1.ay4,
+                s1.ay5,
+                s1.ay6,
+                s1.ay7,
+                s1.ay8
+from(
+    select * from (
+                    select
+                    distinct
+                    yil,
+                    ay,
+                    vergino,
+                    'TARIM KREDÝ' as isyeri, 
+                    sube,
+                    il_kodu,
+                    bolge_kodu,
+                    sube_ciro
+                    from
+                    (
+                    select /*+parallel(a,10)*/
+                    yil,
+                    ay,
+                    vergino,
+                    sube,
+                    il_kodu,
+                    bolge_kodu,
+
+                    satýs_ciro_sube,
+                    sum(satýs_ciro_sube) over (partition by yil,ay,sube) as sube_ciro
+        from rapor_201_satis_par a
+                    where yil=2021
+                    and vergino='8450627145'
+                    )
+                    )
+    pivot (
+        max(sube_ciro) 
+        for ay in (
+
+                    1 as ay1,
+                    2 as ay2,
+                    3 as ay3,
+                    4 as ay4,
+                    5 as ay5,
+                    6 as ay6,
+                    7 as ay7,
+                    8 as ay8
+                   )
+          )
+
+) s1
+left join(
+         select magaza_kodu, 
+		kurum_key 
+	 from ref_barkod_magaza
+            where vergino = (select vergino from ref_barkod_isyeri where sira= 10)
+                and yil = 2021 ) s2
+
+on s1.sube = s2.magaza_kodu
+) 

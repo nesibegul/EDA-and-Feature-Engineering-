@@ -1,0 +1,4 @@
+select 'delete /*+parallel(a,10)*/ ' || table_name || ' a where vergino = (select vergino from ref_barkod_isyeri where sira in (21,22)); 
+commit;' from all_tables where owner = 'BARKOD_01_MARKET_01' and table_name like 'E%'
+
+

@@ -1,0 +1,87 @@
+--market bazlý
+select yil, 
+       ay,
+       donem,
+       vergino,
+       isyeri_tanim,
+       madde_kod,
+       madde_tanim,
+       ort_birim_fiyat,
+       on_ort_birim_fiyat,
+       yuzde_deg from(
+select distinct
+       s1.yil,
+       s1.ay,
+       s1.donem,
+       s1.vergino,
+       s3.isyeri_tanim,
+       s1.madde_kod,
+       s2.aciklama as madde_tanim,
+       s1.ort_birim_fiyat,
+       s1.on_ort_birim_fiyat,
+       case when on_ort_birim_fiyat is null then 99 
+       else round((ort_birim_fiyat-on_ort_birim_fiyat)/on_ort_birim_fiyat, 2) *100 end as yuzde_deg
+       from(
+
+select s1.yil,
+       s1.ay,
+       s1.donem,
+       s1.vergino,
+       s1.madde_kod,
+       s1.ort_birim_fiyat ,
+       s2.on_ort_birim_fiyat 
+  from    (select yil,
+                  ay,
+                  donem,
+                  vergino,
+                  madde_kod,
+                  round(avg(satis_birim_fiyat), 2) as ort_birim_fiyat
+             from h_001_madde_no_fiyat_par
+            where yil = 2021 and ay = 4 and donem = 2
+            group by
+                  yil,
+                  ay,
+                  donem,
+                  vergino,
+                  madde_kod
+            ) s1
+       left join
+          (select yil,
+                  ay,
+                  donem,
+                  vergino,
+                  madde_kod,
+                  round(avg(satis_birim_fiyat) ,2) as on_ort_birim_fiyat
+             from h_001_madde_no_fiyat_par
+            where yil = 2021 and ay = 3 and donem = 3
+            group by
+                  yil,
+                  ay,
+                  donem,
+                  vergino,
+                  madde_kod
+            ) s2
+       on     s1.madde_kod = s2.madde_kod
+       and s1.vergino = s2.vergino
+          
+        )s1
+        
+   left join
+        
+       ( select kod, 
+                aciklama, 
+                seviye 
+            from REF_BARKOD_COICOP where seviye = 11) s2
+       on s1. madde_kod = s2.kod
+       
+   left join
+        
+        (select vergino, isyeri_tanim from REF_BARKOD_ISYERI) s3
+      
+       on s1.vergino = s3.vergino 
+       
+       
+    )
+    --where vergino = '9840313293'
+    --and madde_kod = '01114080202'
+    order by abs(yuzde_deg) desc

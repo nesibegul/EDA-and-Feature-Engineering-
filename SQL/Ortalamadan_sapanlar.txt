@@ -1,0 +1,102 @@
+select
+*
+from
+(
+    select
+        yil,
+        ay,
+        vergino,
+        sube,
+        bolge_kodu,
+        il_kodu,
+        barkod,
+        madde_kod,
+        satis_birim_fiyat,
+        satis_birim_fiyat_ort,
+        case
+            when satis_birim_fiyat_ort = 0 then -999
+            else (satis_birim_fiyat - satis_birim_fiyat_ort) / abs(satis_birim_fiyat_ort) * 100
+        end oran
+            
+    from
+    (
+        select
+            s1.yil,
+            s1.ay,
+            s1.vergino,
+            s1.sube,
+            s1.bolge_kodu,
+            s1.il_kodu,
+            s1.barkod,
+            s1.madde_kod,
+            s1.satis_birim_fiyat,
+            s2.satis_birim_fiyat_ort
+        from
+        (
+            select
+                yil,
+                ay,
+                vergino,
+                sube,
+                bolge_kodu,
+                il_kodu,
+                barkod,
+                madde_kod,
+                satis_birim_fiyat
+            from E_006_BARKOD_URUN_MIKTAR_PAR
+                 where yil = 2020
+                       and ay = 7
+                       and madde_kod is not null
+                       and barkod in
+                      (
+                        select
+                            distinct
+                                barkod
+                        from f_001_fiyat_analiz_par
+                            where yil = 2020
+                                  and ay = 7
+                                  and vergino = '9480423762'
+                                  and tufe_madde_no is not null
+                      )
+        )s1
+        left join
+        (
+            select
+                yil,
+                ay,
+                vergino,
+                bolge_kodu,
+                madde_kod,
+                satis_birim_fiyat_ort
+            from
+            (
+                select
+                    yil,
+                    ay,
+                    vergino,
+                    bolge_kodu,
+                    madde_kod,
+                    avg(satis_birim_fiyat) as satis_birim_fiyat_ort
+                from E_006_BARKOD_URUN_MIKTAR_PAR
+                    where yil = 2020
+                          and ay = 7
+                          and madde_kod is not null
+                group by
+                    yil,
+                    ay,
+                    vergino,
+                    bolge_kodu,
+                    madde_kod
+            )    
+        )s2
+        on s1.yil = s2.yil
+           and s1.ay = s2.ay
+           and s1.vergino = s2.vergino
+           and s1.bolge_kodu = s2.bolge_kodu
+           and s1.madde_kod = s2.madde_kod
+    )
+)
+where abs(oran) > 49.9
+      and vergino = '9480423762'
+      
+order by oran desc
