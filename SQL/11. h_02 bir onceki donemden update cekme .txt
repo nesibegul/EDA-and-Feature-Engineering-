@@ -1,0 +1,33 @@
+declare
+begin
+
+    for c in
+    (
+        select
+            madde_no,
+            barkod,
+            barkod_imp
+        from U_H_002_BARKOD_IKAME_PAR a
+            where u_yil = 2021
+                  and u_ay = 12
+                  and u_gun = 27
+                  and u_sira = 1
+                  and yil = 2021
+                  and ay = 12
+                  and donem = 2
+                  and barkod_imp = 1
+                  and vergino = (select vergino from ref_barkod_isyeri where sira = 3)
+    )
+    loop
+        update H_002_BARKOD_IKAME_PAR a
+            set barkod_imp = 1
+            where yil = 2021
+                  and ay = 12
+                  and donem = 3
+                  and vergino = (select vergino from ref_barkod_isyeri where sira = 3)
+                  and madde_no = c.madde_no
+                  and barkod = c.barkod;
+    end loop;
+    commit;
+
+end;
